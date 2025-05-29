@@ -26,34 +26,59 @@
   </div>
   <ul id="tasks"></ul>
 
-  <script>
-    (function() {
-      const input = document.getElementById('new-task');
-      const addBtn = document.getElementById('add-btn');
-      const list   = document.getElementById('tasks');
 
-      function addTask() {
-        const text = input.value.trim();
-        if (!text) return;
+   <script>
+  (function() {
+    const input = document.getElementById('new-task');
+    const addBtn = document.getElementById('add-btn');
+    const list   = document.getElementById('tasks');
+    const STORAGE_KEY = 'odinTodoTasks';
+
+    // Load tasks from LocalStorage on startup
+    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    renderTasks();
+
+    function saveTasks() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      list.innerHTML = '';
+      tasks.forEach((text, i) => {
         const li = document.createElement('li');
         li.textContent = text;
 
         const del = document.createElement('button');
         del.textContent = '×';
         del.className = 'delete-btn';
-        del.onclick = () => list.removeChild(li);
+        del.onclick = () => {
+          tasks.splice(i, 1);
+          saveTasks();
+          renderTasks();
+        };
 
         li.appendChild(del);
         list.appendChild(li);
-        input.value = '';
-      }
-
-      // Singleton pattern: this IIFE ensures our app setup runs only once
-      addBtn.addEventListener('click', addTask);
-      input.addEventListener('keypress', e => {
-        if (e.key === 'Enter') addTask();
       });
-    })();
-  </script>
+    }
+
+    function addTask() {
+      const text = input.value.trim();
+      if (!text) return;
+      tasks.push(text);
+      saveTasks();
+      renderTasks();
+      input.value = '';
+    }
+
+    // Initialize events (Singleton bootstrap)
+    addBtn.addEventListener('click', addTask);
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') addTask();
+    });
+  })();
+</script>
+
+
 </body>
 </html>

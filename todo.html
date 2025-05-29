@@ -6,104 +6,129 @@
   <style>
     body { font-family: sans-serif; max-width: 600px; margin: 2em auto; }
     h1 { text-align: center; }
+
+    /* Flex-wrap container for form */
+    #task-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+      justify-content: center;
+      margin-bottom: 1em;
+    }
+
     #new-task { width: 70%; padding: 0.5em; }
-    #add-btn { padding: 0.6em 1em; }
+    #add-btn   { padding: 0.6em 1em; }
     ul { list-style: none; padding: 0; }
-    li { 
-      display: flex; 
-      justify-content: space-between; 
-      padding: 0.5em; 
-      border-bottom: 1px solid #ddd; 
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5em;
+      border-bottom: 1px solid #ddd;
     }
     .delete-btn { color: red; border: none; background: none; cursor: pointer; }
-    /* Add this to your existing <style> block */
-.completed {
-  text-decoration: line-through;
-  color: #999;
-  opacity: 0.7;
+    .completed { text-decoration: line-through; color: #999; opacity: 0.7; }
+
+    @media (max-width: 500px) {
+      #new-task, #add-btn {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0.2em 0;
+      }
+      #add-btn { margin-top: 0; }
+    }
+
+    /* Hide delete button until hover */
+li .delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+li:hover .delete-btn {
+  opacity: 1;
+}
+
+/* Softer background for completed tasks */
+li.completed {
+  background-color: #f0f0f0;
 }
 
   </style>
 </head>
 <body>
   <h1>My To-Do List</h1>
-  <div>
+  <div id="task-form">
     <input id="new-task" placeholder="Enter a new task…" />
     <button id="add-btn">Add</button>
   </div>
   <ul id="tasks"></ul>
 
-
   <script>
-  (function() {
-    const input = document.getElementById('new-task');
-    const addBtn = document.getElementById('add-btn');
-    const list   = document.getElementById('tasks');
-    const STORAGE_KEY = 'odinTodoTasks';
+    (function() {
+      const input = document.getElementById('new-task');
+      const addBtn = document.getElementById('add-btn');
+      const list   = document.getElementById('tasks');
+      const STORAGE_KEY = 'odinTodoTasks';
 
-    // Load tasks from LocalStorage: now an array of { text, completed }
-    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    renderTasks();
-
-    function saveTasks() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    }
-
-    function renderTasks() {
-      list.innerHTML = '';
-      tasks.forEach((task, i) => {
-        const li = document.createElement('li');
-        if (task.completed) li.classList.add('completed');
-
-        // Checkbox for complete toggle
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.completed;
-        checkbox.onchange = () => {
-          tasks[i].completed = checkbox.checked;
-          saveTasks();
-          renderTasks();
-        };
-
-        // Task text
-        const span = document.createElement('span');
-        span.textContent = task.text;
-
-        // Delete button
-        const del = document.createElement('button');
-        del.textContent = '×';
-        del.className = 'delete-btn';
-        del.onclick = () => {
-          tasks.splice(i, 1);
-          saveTasks();
-          renderTasks();
-        };
-
-        li.appendChild(checkbox);
-        li.appendChild(span);
-        li.appendChild(del);
-        list.appendChild(li);
-      });
-    }
-
-    function addTask() {
-      const text = input.value.trim();
-      if (!text) return;
-      tasks.push({ text, completed: false });
-      saveTasks();
+      // Load tasks from LocalStorage (array of { text, completed })
+      let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       renderTasks();
-      input.value = '';
-    }
 
-    // Bootstrap event handlers
-    addBtn.addEventListener('click', addTask);
-    input.addEventListener('keypress', e => {
-      if (e.key === 'Enter') addTask();
-    });
-  })();
-</script>
+      function saveTasks() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      }
 
+      function renderTasks() {
+        list.innerHTML = '';
+        tasks.forEach((task, i) => {
+          const li = document.createElement('li');
+          if (task.completed) li.classList.add('completed');
 
+          // Checkbox for completion
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = task.completed;
+          checkbox.onchange = () => {
+            tasks[i].completed = checkbox.checked;
+            saveTasks();
+            renderTasks();
+          };
 
+          // Task text
+          const span = document.createElement('span');
+          span.textContent = task.text;
+
+          // Delete button
+          const del = document.createElement('button');
+          del.textContent = '×';
+          del.className = 'delete-btn';
+          del.onclick = () => {
+            tasks.splice(i, 1);
+            saveTasks();
+            renderTasks();
+          };
+
+          li.appendChild(checkbox);
+          li.appendChild(span);
+          li.appendChild(del);
+          list.appendChild(li);
+        });
+      }
+
+      function addTask() {
+        const text = input.value.trim();
+        if (!text) return;
+        tasks.push({ text, completed: false });
+        saveTasks();
+        renderTasks();
+        input.value = '';
+      }
+
+      // Bootstrap event handlers
+      addBtn.addEventListener('click', addTask);
+      input.addEventListener('keypress', e => {
+        if (e.key === 'Enter') addTask();
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>To-Do List App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2em auto; }
+    h1 { text-align: center; }
+    #new-task { width: 70%; padding: 0.5em; }
+    #add-btn { padding: 0.6em 1em; }
+    ul { list-style: none; padding: 0; }
+    li { 
+      display: flex; 
+      justify-content: space-between; 
+      padding: 0.5em; 
+      border-bottom: 1px solid #ddd; 
+    }
+    .delete-btn { color: red; border: none; background: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>My To-Do List</h1>
+  <div>
+    <input id="new-task" placeholder="Enter a new task…" />
+    <button id="add-btn">Add</button>
+  </div>
+  <ul id="tasks"></ul>
+
+  <script>
+    (function() {
+      const input = document.getElementById('new-task');
+      const addBtn = document.getElementById('add-btn');
+      const list   = document.getElementById('tasks');
+
+      function addTask() {
+        const text = input.value.trim();
+        if (!text) return;
+        const li = document.createElement('li');
+        li.textContent = text;
+
+        const del = document.createElement('button');
+        del.textContent = '×';
+        del.className = 'delete-btn';
+        del.onclick = () => list.removeChild(li);
+
+        li.appendChild(del);
+        list.appendChild(li);
+        input.value = '';
+      }
+
+      // Singleton pattern: this IIFE ensures our app setup runs only once
+      addBtn.addEventListener('click', addTask);
+      input.addEventListener('keypress', e => {
+        if (e.key === 'Enter') addTask();
+      });
+    })();
+  </script>
+</body>
+</html>
